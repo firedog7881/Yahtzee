@@ -9,19 +9,19 @@ class Yahtzee:
         self.dice = [0, 0, 0, 0, 0]
         self.roll_all_dice()
         self.score_card = [
-            {'name': 'Ones', 'score': None, 'number': 1, 'section': 1},
-            {'name': 'Twos', 'score': None, 'number': 2, 'section': 1},
-            {'name': 'Threes', 'score': None, 'number': 3, 'section': 1},
-            {'name': 'Fours', 'score': None, 'number': 4, 'section': 1},
-            {'name': 'Fives', 'score': None, 'number': 5, 'section': 1},
-            {'name': 'Sixes', 'score': None, 'number': 6, 'section': 1},
-            {'name': 'Three_of_a_kind', 'score': None, 'number': 7, 'section': 2},
-            {'name': 'Four_of_a_kind', 'score': None, 'number': 8, 'section': 2},
-            {'name': 'Full_house', 'score': None, 'number': 9, 'section': 2},
-            {'name': 'Small_straight', 'score': None, 'number': 10, 'section': 2},
-            {'name': 'Large_straight', 'score': None, 'number': 11, 'section': 2},
-            {'name': 'Yahtzee', 'score': None, 'number': 12, 'section': 2},
-            {'name': 'Chance', 'score': None, 'number': 13, 'section': 3},
+            {'name': 'ones', 'score': None, 'number': 1, 'section': 1},
+            {'name': 'twos', 'score': None, 'number': 2, 'section': 1},
+            {'name': 'threes', 'score': None, 'number': 3, 'section': 1},
+            {'name': 'fours', 'score': None, 'number': 4, 'section': 1},
+            {'name': 'fives', 'score': None, 'number': 5, 'section': 1},
+            {'name': 'sixes', 'score': None, 'number': 6, 'section': 1},
+            {'name': 'three_of_a_kind', 'score': None, 'number': 7, 'section': 2},
+            {'name': 'four_of_a_kind', 'score': None, 'number': 8, 'section': 2},
+            {'name': 'full_house', 'score': None, 'number': 9, 'section': 2},
+            {'name': 'small_straight', 'score': None, 'number': 10, 'section': 2},
+            {'name': 'large_straight', 'score': None, 'number': 11, 'section': 2},
+            {'name': 'yahtzee', 'score': None, 'number': 12, 'section': 2},
+            {'name': 'chance', 'score': None, 'number': 13, 'section': 3},
         ]
         self.turn = 0
         # self.current_matches = []
@@ -81,10 +81,23 @@ class Yahtzee:
         roll = self.dice
         counts = Counter(roll)
         categories = []
+
         # Ones through Sixes
         for i in range(1, 7):
             if i in counts:
-                categories.append(f"{i}s")
+                if i == 1:
+                    categories.append("ones")
+                elif i == 2:
+                    categories.append("twos")
+                elif i == 3:
+                    categories.append("threes")
+                elif i == 4:
+                    categories.append("fours")
+                elif i == 5:
+                    categories.append("fives")
+                elif i == 6:
+                    categories.append("sixes")
+
         # Three-of-a-kind, Four-of-a-kind, and Yahtzee
         for num, count in counts.items():
             if count == 3:
@@ -99,9 +112,9 @@ class Yahtzee:
             categories.append("full house")
         
         # Small and Large Straight
-        if set(roll) in [set(range(i, i+4)) for i in range(1, 4)]:
+        if any(set(roll[i:i+4]) in [{1, 2, 3, 4}, {2, 3, 4, 5}, {3, 4, 5, 6}] for i in range(len(roll)-3)):
             categories.append("small straight")
-        if set(roll) == set(range(min(roll), min(roll)+5)):
+        if set(roll) == {1, 2, 3, 4, 5} or set(roll) == {2, 3, 4, 5, 6}:
             categories.append("large straight")
         
         # Chance
@@ -116,7 +129,7 @@ class Yahtzee:
                 if category['score'] is None and category['name'] == match:
                     available_categories.append(match)
         
-        categories_in_order = ["Yahtzee", "Large Straight", "Full House", "Small Straight", "Four-of-a-kind", "Three-of-a-kind"] + [f"{i}s" for i in range(6, 0, -1)] + ["Chance"]
+        categories_in_order = ["yahtzee", "large Straight", "full House", "small Straight", "four-of-a-kind", "three-of-a-kind", "sixes", "fives", "fours", "threes", "twos", "ones", "chance"]
         for category in categories_in_order:
             if category in available_categories:
                 # If the category is Yahtzee
