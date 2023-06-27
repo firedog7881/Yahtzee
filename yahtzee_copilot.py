@@ -113,7 +113,7 @@ class Yahtzee:
         available_categories = []
         for match in matches:
             for category in self.score_card:
-                if self.score_card['score'] is None and self.score_card['name'] == match:
+                if category['score'] is None and category['name'] == match:
                     available_categories.append(match)
         
         categories_in_order = ["Yahtzee", "Large Straight", "Full House", "Small Straight", "Four-of-a-kind", "Three-of-a-kind"] + [f"{i}s" for i in range(6, 0, -1)] + ["Chance"]
