@@ -1,8 +1,6 @@
 '''Create a CLI version of Yahtzee'''
 import random
 from collections import Counter
-from time import sleep
-import re
 
 class Yahtzee:
     def __init__(self):
