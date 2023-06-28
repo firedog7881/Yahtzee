@@ -3,6 +3,17 @@
 ## Overview
 Yahtzee CLI Game is a command-line implementation of the popular dice game Yahtzee. It allows users to play Yahtzee directly from their terminal. Roll the dice, score your combinations, and compete for the highest score!
 
+The catalyst for this project was to create a yahtzee iMessage game for my daughter and I to play.
+I did this to get a hang of the logic behind the game and then quickly realized that no one creates iMessage games anymore.
+I also started this project to test out the new Github CoPilot within VS Code and all I can say is HOLY COW!!!
+I started this yesterday with no code, and honestly forgetting how to start a python file. I then performed some prompts on ChatGPT
+This got me going and then I used CoPilot and ChatGPT to greatly assist in this project.
+This is not meant to be perfect and CoPilot or ChatGPT aren't even close to perfect but it is tremendously helpful.
+CoPilot alone removes so much extra typing. To be able to write psuedo-code and then have copilot fill in the details, be careful, its wrong a lot and adds weird little bugs here and there.
+
+
+There are so many things I want to add. Maybe I'll take this and make web version.
+
 ## Features
 - Roll the dice: The game automatically rolls the dice for you.
 - Score combinations: Choose from various scoring categories to score your dice rolls.
