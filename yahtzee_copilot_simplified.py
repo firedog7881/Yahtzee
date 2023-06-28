@@ -121,6 +121,7 @@ class Yahtzee:
 
     def get_score_of_roll(self, category):
         # Find the scores of the matches and return scores
+        # This function assumes a single category is passed in from the detect_dice_roll function and choose_category_to_score function
         score_map = {
             'ones': self.dice.count(1),
             'twos': self.dice.count(2) * 2,
@@ -141,6 +142,10 @@ class Yahtzee:
     def validate_num_input(self, input):
         # Remove spaces from the input
         input = input.replace(" ", "")
+        counts = Counter(input)
+        if all(count == 1 for count in counts.values()) is False:
+            print("Invalid input! Contains duplicate numbers.")
+            return False
         if len(input) > 5:
             print("Invalid input! Too many numbers.")
             return False
