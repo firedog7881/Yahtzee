@@ -15,11 +15,11 @@ class Yahtzee:
             {'name': 'fours', 'score': None, 'number': 4, 'section': 1},
             {'name': 'fives', 'score': None, 'number': 5, 'section': 1},
             {'name': 'sixes', 'score': None, 'number': 6, 'section': 1},
-            {'name': 'three_of_a_kind', 'score': None, 'number': 7, 'section': 2},
-            {'name': 'four_of_a_kind', 'score': None, 'number': 8, 'section': 2},
-            {'name': 'full_house', 'score': None, 'number': 9, 'section': 2},
-            {'name': 'small_straight', 'score': None, 'number': 10, 'section': 2},
-            {'name': 'large_straight', 'score': None, 'number': 11, 'section': 2},
+            {'name': 'three of a kind', 'score': None, 'number': 7, 'section': 2},
+            {'name': 'four of a kind', 'score': None, 'number': 8, 'section': 2},
+            {'name': 'full house', 'score': None, 'number': 9, 'section': 2},
+            {'name': 'small straight', 'score': None, 'number': 10, 'section': 2},
+            {'name': 'large straight', 'score': None, 'number': 11, 'section': 2},
             {'name': 'yahtzee', 'score': None, 'number': 12, 'section': 2},
             {'name': 'chance', 'score': None, 'number': 13, 'section': 3},
         ]
@@ -46,39 +46,37 @@ class Yahtzee:
         for i in range(5):
             self.roll_die(i)
 
-    def get_score_card_for_category(self, category_name):
-        '''Get the scorecard for a given category'''
-        return next((cat for cat in self.score_card if cat['name'] == category_name), None)
-
-    def choose_category_to_score(self, best_match=None):
-        '''Record the score for the current roll'''
-        # 
-        self.display_scorecard()
-        if best_match is not None:
-            best_match = self.get_score_card_for_category(best_match)
-            print(f"Your best match is {best_match['name']} with a score of {best_match['score']}")
-            use_best_input = False
-            while use_best_input is False:
-                use_best = input(f"Do you want to use {best_match['name']}?")
-                if use_best.lower() == 'y':
-                    return best_match
-                if use_best.lower() == 'n':
-                    self.display_scorecard()
-                    category_number = int(input("Enter the number of the category you want to score: "))
-                    return self.get_score_card_for_category(category_number)
-                else:
-                    print("Invalid input. Please enter 'y' or 'n'")
-        else:
-            category_number = int(input("Enter the number of the category you want to score: "))
-            return self.get_score_card_for_category(category_number)
-        
     def record_score(self, category):
-        # Figure out how to record the score after the turn
-        self.score_card[category['number']-1]['score'] = category['score']
+        '''Record the score for the current turn'''
+        score = self.get_score_of_roll(category)
+        for cat in self.score_card:
+            if cat['name'] == category:
+                cat['score'] = score
+                break
+        self.display_scorecard()
         return
+    
+    def choose_category_to_score(self):
+        '''Record the score for the current roll'''
+        matches = self.detect_dice_roll()
+        # remove any matches that have already been scored
+        matches = [match for match in matches if match not in [cat['name'] for cat in self.score_card if cat['score'] is not None]]
+
+        print("\nChoose a category to score:")
+        for i, match in enumerate(matches):
+            print(f"{i+1}. {match.title()}")  # assuming match is a string
+
+        while True:
+            choice = input("Enter the number of your choice: ")
+            if choice.isdigit() and 0 < int(choice) <= len(matches):
+                choice = int(choice) - 1
+                self.record_score(matches[choice])
+                return
+            else:
+                print("Invalid input. Please enter a number corresponding to your choice.")
         
     def detect_dice_roll(self):
-        roll = self.dice
+        roll = sorted(self.dice)
         counts = Counter(roll)
         categories = []
 
@@ -121,41 +119,6 @@ class Yahtzee:
         categories.append("chance")
         return categories
 
-    def calculate_best_category_to_play(self, matches):
-        '''Take in category matches and look at the currently scored categories and determine the best match based on the best strategy for yahtzee'''
-        # Currently this does not take into account score. Need to investigate if that is proper strategy in yahtzee.
-        # For example, if I roll a 1,3,3,3,5 it picks fives as best, this is incorrect because a three of a kind is better than a single five.
-        # This is a good example of why I need to write tests for this. I need to be able to test this function with different dice rolls and see if it picks the correct category.
-        # I also need to test this function with different scorecards to see if it picks the correct category.
-        # I need to figoure out a way to pick the best hand based on not just the category but also the score that is produced.
-        # Is it better to score each category and then compare the highest score to the other categories?
-        available_categories = []
-        for match in matches:
-            for category in self.score_card:
-                if category['score'] is None and category['name'] == match:
-                    available_categories.append(match)
-        
-        categories_in_order = ["yahtzee", "large Straight", "full House", "small Straight", "four-of-a-kind", "three-of-a-kind", "sixes", "fives", "fours", "threes", "twos", "ones", "chance"]
-        for category in categories_in_order:
-            if category in available_categories:
-                # If the category is Yahtzee
-                if category == "Yahtzee":
-                    return category
-                # If the category is a kind or a straight
-                elif "Four-of-a-kind" in category:
-                    return category
-                # If the category is a Large straight
-                elif "Large Straight" in category:
-                    return category
-                # If the category is a full house
-                elif category == "Full House":
-                    return category
-                # If the category is a small straight
-                elif category.endswith('s'):
-                    return category
-                elif category == "Chance":
-                    return category
-
     def get_score_of_roll(self, category):
         # Find the scores of the matches and return scores
         score_map = {
@@ -176,11 +139,12 @@ class Yahtzee:
         return score_map[category]
 
     def validate_num_input(self, input):
-        input_text_length = len(input)                                    
-        input_int = []
-        if input_text_length != len(input_int):
-            print("Invalid input! Length mismatch.")
+        # Remove spaces from the input
+        input = input.replace(" ", "")
+        if len(input) > 5:
+            print("Invalid input! Too many numbers.")
             return False
+        input_int = []
         for i in input:
             if not i.isdigit():
                 print("Invalid input! Contains non-digit characters.")
@@ -190,7 +154,8 @@ class Yahtzee:
             if i not in range(1, 6):
                 print("Invalid input! Number not in range 1-5.")
                 return False
-        return True
+        return input_int
+
 
     def validate_text_input(self, input):
         if input.lower() not in ['y', 'n']:
@@ -204,39 +169,47 @@ class Yahtzee:
             print(f"\nTurn {self.turn + 1} of 13:")
             print(f"First rolling of the dice...")
             self.roll_all_dice()
+            skip_reroll = False
             for i in range(3):
+                if skip_reroll == True:
+                    break
                 print(f"Roll {i + 1}...")
-                while i < 2:  # if it's not the last roll
+                while i < 3:  # if it's not the last roll
                     print(f"Your roll: {self.dice}")
                     # Print out the best match and score
                     categories = self.detect_dice_roll()
-                    best_match = self.calculate_best_category_to_play(categories)
-                    score = self.get_score_of_roll(best_match)
-                    print(f"Best match: {best_match} with a score of {score}")
+                    print(f"Possible categories: {categories}")
 
                     # Ask the user if they want to keep the roll
                     keep_roll_input = False
+                    if i == 2:
+                        break
                     while keep_roll_input == False:
                         keep_roll = input("Do you want to keep this roll? (y/n): ")
                         if self.validate_text_input(keep_roll) == False:
-                            break
+                            continue
                         if keep_roll.lower() == 'n':
                             reroll_input = False
                             while reroll_input == False:
                                 reroll = input("Enter the numbers of the dice you want to reroll, separated by spaces: ")
-                                if self.validate_int_input(reroll) == False:
-                                    break
+                                reroll = self.validate_num_input(reroll)
+                                if reroll == False:
+                                    continue
                                 else:
-                                    reroll = reroll.split()
-                                    self.reroll_dice(reroll)
+                                    for die_index in reroll:
+                                        self.roll_die(int(die_index)-1)
                                     reroll_input = True
+                                    i += 1
                                     break
-                                # the problem here is that they need to break out to the outer loop
                             break
                         if keep_roll.lower() == 'y':
                             keep_roll_input = True
+                            skip_reroll = True
                             break
-            self.calculate_score()
+                        
+                    break
+                
+            self.choose_category_to_score()
             self.turn += 1
         print("Game over!")
     
